@@ -41,3 +41,10 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Binaries and other generated files
+*/bin
+*/obj
+CacheInitializer.v12.suo
+packages
+CacheInitializer/readme.txt
