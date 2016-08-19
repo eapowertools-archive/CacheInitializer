@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +19,10 @@ namespace CacheInitializer
         [Option('a', "appname", Required = false,
           HelpText = "App to load")]
         public string appname { get; set; }
+
+        [Option('p', "appname", Required = false,
+          HelpText = "Virtual Proxy to use")]
+        public string virtualProxy { get; set; }
 
         [Option('o', "objects", Required = false, DefaultValue = false,
          HelpText = "cycle through all sheets and objects")]
