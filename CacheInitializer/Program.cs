@@ -7,9 +7,9 @@ using Qlik.Engine.Communication;
 using Qlik.Sense.Client;
 
 // Title:       Qlik Sense Cache Initializer 
-// Date:        Feb 2015
-// Version:     0.1
-// Author:      Joe Bickley
+// Date:        19.08.2016
+// Version:     0.11
+// Author:      Joe Bickley,Roland Vecera
 // Summary:     This tool will "warm" the cache of a Qlik Sense server so that when using large apps the users get good performance right away.  
 //              You can use it to load all apps, a single app, and you can get it to just open the app to RAM or cycle through all the objects 
 //              so that it will pre calculate expressions so users get rapid performance. You can also pass in selections too.
