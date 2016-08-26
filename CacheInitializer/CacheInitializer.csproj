@@ -35,10 +35,10 @@
   <PropertyGroup />
   <ItemGroup>
     <Reference Include="Autofac">
-      <HintPath>..\packages\Autofac.3.5.0\lib\net40\Autofac.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\LaptopData\Laptop\Benutzer\RVA\Documents\Beispiele\qliksense\cache initializer joe bickley\QlikSense.NetSDK3.0.1.0\autofac.dll</HintPath>
     </Reference>
     <Reference Include="BouncyCastle.CryptoExt">
-      <HintPath>..\packages\QlikSense.NetSDK.2.2.3.0\lib\net452\BouncyCastle.CryptoExt.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\LaptopData\Laptop\Benutzer\RVA\Documents\Beispiele\qliksense\cache initializer joe bickley\QlikSense.NetSDK3.0.1.0\BouncyCastle.CryptoExt.dll</HintPath>
     </Reference>
     <Reference Include="CommandLine">
       <HintPath>..\packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
