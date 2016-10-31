@@ -43,7 +43,7 @@ namespace CacheInitializer
             {
                 serverURL = new Uri(options.server);
                 appname = options.appname;
-                virtualProxy = (options.virtualProxy.Length > 0) ? options.virtualProxy : "" ;
+                virtualProxy = !string.IsNullOrEmpty(options.virtualProxy) ? options.virtualProxy : "" ;
                 openSheets = options.fetchobjects;
                 if (options.selectionfield != null)
                 {
