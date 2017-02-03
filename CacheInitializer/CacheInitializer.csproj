@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CacheInitializer</RootNamespace>
     <AssemblyName>CacheInitializer</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -34,14 +34,36 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
+    <Reference Include="Autofac">
+      <HintPath>..\packages\Autofac.3.5.0\lib\net40\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="BouncyCastle.CryptoExt">
+      <HintPath>..\packages\QlikSense.NetSDK.2.2.3.0\lib\net452\BouncyCastle.CryptoExt.dll</HintPath>
+    </Reference>
     <Reference Include="CommandLine">
       <HintPath>..\packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Qlik.Engine">
-      <HintPath>..\..\_shared\QlikSense.NetSDK.1.1.0\Qlik.Engine.dll</HintPath>
+      <HintPath>..\packages\QlikSense.NetSDK.2.2.3.0\lib\net452\Qlik.Engine.dll</HintPath>
+    </Reference>
+    <Reference Include="Qlik.Engine.Extensions">
+      <HintPath>..\packages\QlikSense.NetSDK.2.2.3.0\lib\net452\Qlik.Engine.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Qlik.Engine.Extensions.WinForms">
+      <HintPath>..\packages\QlikSense.NetSDK.2.2.3.0\lib\net452\Qlik.Engine.Extensions.WinForms.dll</HintPath>
     </Reference>
     <Reference Include="Qlik.Sense.Client">
-      <HintPath>..\..\_shared\QlikSense.NetSDK.1.1.0\Qlik.Sense.Client.dll</HintPath>
+      <HintPath>..\packages\QlikSense.NetSDK.2.2.3.0\lib\net452\Qlik.Sense.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Qlik.Sense.Communication">
+      <HintPath>..\packages\QlikSense.NetSDK.2.2.3.0\lib\net452\Qlik.Sense.Communication.dll</HintPath>
+    </Reference>
+    <Reference Include="Qlik.Sense.ExtendedFramework">
+      <HintPath>..\packages\QlikSense.NetSDK.2.2.3.0\lib\net452\Qlik.Sense.ExtendedFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -57,8 +79,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
