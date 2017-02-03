@@ -19,7 +19,7 @@ using Qlik.Sense.Client;
 
 // Usage:       cacheinitiazer.exe -s https://server.domain.com [-a appname] [-o] [-f fieldname] [-v "value 1,value 2"]
 // Notes:       This projects use the Qlik Sense .net SDK, you must use the right version of the SDK to match the server you are connecting too. 
-//              To swap version simply replace the .net SDK files in the BIN directory of this project, if you dont match them, it wont work!
+//              To swap version   simply replace the .net SDK files in the BIN directory of this project, if you dont match them, it wont work!
 
 
 namespace CacheInitializer

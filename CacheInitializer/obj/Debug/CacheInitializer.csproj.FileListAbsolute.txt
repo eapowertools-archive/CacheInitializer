@@ -17,3 +17,6 @@
 \\psf\Home\Documents\VisualStudioProjects\Qlik Sense\CachInitializer\CacheInitializer\obj\Debug\CacheInitializer.pdb
 \\psf\Home\Documents\VisualStudioProjects\Qlik Sense\CachInitializer\CacheInitializer\bin\Debug\CommandLine.dll
 \\psf\Home\Documents\VisualStudioProjects\Qlik Sense\CachInitializer\CacheInitializer\bin\Debug\CommandLine.xml
+\\psf\Home\Documents\VisualStudioProjects\Qlik Sense\CacheInitializer\CacheInitializer\bin\Debug\CacheInitializer.exe.config
+\\psf\Home\Documents\VisualStudioProjects\Qlik Sense\CacheInitializer\CacheInitializer\obj\Debug\CacheInitializer.exe
+\\psf\Home\Documents\VisualStudioProjects\Qlik Sense\CacheInitializer\CacheInitializer\obj\Debug\CacheInitializer.pdb
