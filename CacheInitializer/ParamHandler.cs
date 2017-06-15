@@ -20,7 +20,7 @@ namespace CacheInitializer
           HelpText = "App to load")]
         public string appname { get; set; }
 
-        [Option('p', "appname", Required = false,
+        [Option('p', "proxy", Required = false,
           HelpText = "Virtual Proxy to use")]
         public string virtualProxy { get; set; }
 
