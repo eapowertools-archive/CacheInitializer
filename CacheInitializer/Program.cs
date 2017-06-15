@@ -43,6 +43,7 @@ namespace CacheInitializer
             {
                 serverURL = new Uri(options.server);
                 appname = options.appname;
+                appid = options.appid;
                 virtualProxy = !string.IsNullOrEmpty(options.virtualProxy) ? options.virtualProxy : "" ;
                 openSheets = options.fetchobjects;
                 if (options.selectionfield != null)
@@ -73,18 +74,31 @@ namespace CacheInitializer
 
 
             ////Start to cache the apps
-            if (appname != null)
+
+            if (appid != null)
             {
-                //Open up and cache one app
-                IAppIdentifier appidentifier = remoteQlikSenseLocation.AppWithNameOrDefault(appname);
+                //Open up and cache one app, based on app ID
+                IAppIdentifier appidentifier = remoteQlikSenseLocation.AppWithId(appid);
 
                 LoadCache(remoteQlikSenseLocation, appidentifier, openSheets, mySelection);
+                
             }
             else
             {
-                //Get all apps, open them up and cache them
-                remoteQlikSenseLocation.GetAppIdentifiers().ToList().ForEach(id => LoadCache(remoteQlikSenseLocation, id, openSheets, null));
+                if (appname != null)
+                {
+                    //Open up and cache one app
+                    IAppIdentifier appidentifier = remoteQlikSenseLocation.AppWithNameOrDefault(appname);
+
+                    LoadCache(remoteQlikSenseLocation, appidentifier, openSheets, mySelection);
+                }
+                else
+                {
+                    //Get all apps, open them up and cache them
+                    remoteQlikSenseLocation.GetAppIdentifiers().ToList().ForEach(id => LoadCache(remoteQlikSenseLocation, id, openSheets, null));
+                }
             }
+
 
             ////Wrap it up
             var dt = DateTime.Now - d;

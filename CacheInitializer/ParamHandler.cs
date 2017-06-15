@@ -17,8 +17,12 @@ namespace CacheInitializer
         public string server { get; set; }
 
         [Option('a', "appname", Required = false,
-          HelpText = "App to load")]
+          HelpText = "App to load (using app name)")]
         public string appname { get; set; }
+
+        [Option('i', "appid", Required = false,
+          HelpText = "App to load (using app ID)")]
+        public string appid { get; set; }
 
         [Option('p', "proxy", Required = false,
           HelpText = "Virtual Proxy to use")]
