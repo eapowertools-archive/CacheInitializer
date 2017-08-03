@@ -64,6 +64,10 @@ namespace CacheInitializer
             QlikConnection.Timeout = Int32.MaxValue;
             var d = DateTime.Now;
             ILocation remoteQlikSenseLocation = Qlik.Engine.Location.FromUri(serverURL);
+
+            //skip the check to see if the SDK version and the server version match
+            remoteQlikSenseLocation.IsVersionCheckActive = false;
+
             if (virtualProxy.Length > 0)
             {
                 remoteQlikSenseLocation.VirtualProxyPath = virtualProxy;
