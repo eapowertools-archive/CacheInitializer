@@ -8,3 +8,6 @@ Uses the commandline.codeplex.com for processing parameters
 Usage:       cacheinitiazer.exe -s https://server.domain.com [-a appname] [-i appid] [-o] [-f fieldname] [-v "value 1,value 2"] [-p virtualproxyprefix]
 
 Notes:       This projects use the Qlik Sense .net SDK, you must use the right version of the SDK to match the server you are connecting too. To swap version   simply replace the .net SDK files in the BIN directory of this project, if you dont match them, it wont work.
+
+
+Also for those interested in similar capabilties but running in node.js check out Goran Sanders project (and many other goodies) here: https://github.com/mountaindude/butler-cw
