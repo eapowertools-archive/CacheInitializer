@@ -1,5 +1,7 @@
 # Qlik Sense Cache Initializer 
 
+This is now the official home of Joe Bickley's CacheInitializer.
+
 Summary:     This tool will "warm" the cache of a Qlik Sense server so that when using large apps the users get good performance right away.  You can use it to load all apps, a single app, and you can get it to just open the app to RAM or cycle through all the objects so that it will pre calculate expressions so users get rapid performance. You can also pass in selections too.
 
 Credits:     Thanks to Øystein Kolsrud for helping with the Qlik Sense .net SDK steps, contributions by Roland Vecera and Goran Sander   
