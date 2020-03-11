@@ -1,53 +1,47 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommandLine;
 using CommandLine.Text;
 
 namespace CacheInitializer
 {
-    // Define a class to receive parsed values
-    class Options
-    {
-   
-        [Option('s', "server", Required = true,
-          HelpText = "URL to the server.")]
-        public string server { get; set; }
+	// Define a class to receive parsed values
+	class Options
+	{
 
-        [Option('a', "appname", Required = false,
-          HelpText = "App to load (using app name)")]
-        public string appname { get; set; }
+		[Option('s', "server", Required = true,
+		  HelpText = "URL to the server.")]
+		public string server { get; set; }
 
-        [Option('i', "appid", Required = false,
-          HelpText = "App to load (using app ID)")]
-        public string appid { get; set; }
+		[Option('a', "appname", Required = false,
+		  HelpText = "App to load (using app name)")]
+		public string appname { get; set; }
 
-        [Option('p', "proxy", Required = false,
-          HelpText = "Virtual Proxy to use")]
-        public string virtualProxy { get; set; }
+		[Option('i', "appid", Required = false,
+		  HelpText = "App to load (using app ID)")]
+		public string appid { get; set; }
 
-        [Option('o', "objects", Required = false, DefaultValue = false,
-         HelpText = "cycle through all sheets and objects")]
-        public bool fetchobjects { get; set; }
+		[Option('p', "proxy", Required = false,
+		  HelpText = "Virtual Proxy to use")]
+		public string virtualProxy { get; set; }
 
-        [Option('f', "field", Required = false,
-         HelpText = "field to make selections in e.g Region")]
-        public string selectionfield { get; set; }
+		[Option('o', "objects", Required = false, Default = false,
+		 HelpText = "cycle through all sheets and objects")]
+		public bool fetchobjects { get; set; }
 
-        [Option('v', "values", Required = false,
-         HelpText = "values to select e.g  \"France\",\"Germany\",\"Spain\"")]
-        public string selectionvalues { get; set; }
+		[Option('f', "field", Required = false,
+		 HelpText = "field to make selections in e.g Region")]
+		public string selectionfield { get; set; }
 
-        [ParserState]
-        public IParserState LastParserState { get; set; }
+		[Option('v', "values", Required = false,
+		 HelpText = "values to select e.g  \"France\",\"Germany\",\"Spain\"")]
+		public string selectionvalues { get; set; }
 
-        [HelpOption]
-        public string GetUsage()
-        {
-            return HelpText.AutoBuild(this,
-              (HelpText current) => HelpText.DefaultParsingErrorsHandler(this, current));
-        }
-    }
+		static void DisplayHelp<T>(ParserResult<T> result, IEnumerable<Error> errs)
+		{
+			var helpText = HelpText.AutoBuild(result,
+			  (current) => HelpText.DefaultParsingErrorsHandler(result, current));
+			Console.WriteLine(helpText);
+		}
+	}
 }
