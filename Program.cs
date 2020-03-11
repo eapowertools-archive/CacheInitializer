@@ -29,13 +29,20 @@ namespace CacheInitializer
 		static void Main(string[] args)
 		{
 			//// process the parameters using the https://github.com/commandlineparser/commandline/wiki/Getting-Started
-			var result = Parser.Default.ParseArguments<Options>(args)
+			Parser.Default.ParseArguments<Options>(args)
 			.WithParsed(options => DoWork(options)) // options is an instance of Options type
 			.WithNotParsed(errors =>
 			{
-				Console.WriteLine("Error out here.");
-			}); // errors is a sequence of type IEnumerable<Error>
+				foreach (Error anError in errors)
+				{
+					if (anError.Tag == ErrorType.MissingRequiredOptionError)
+					{
+						//Console.WriteLine("Missing required argument '--" + ((MissingRequiredOptionError)anError).NameInfo.LongName + "'.");
+					}
+				}
+			});
 
+			return;
 		}
 
 		private static void DoWork(Options options)
@@ -60,10 +67,6 @@ namespace CacheInitializer
 				mySelection.fieldname = options.selectionfield;
 				mySelection.fieldvalues = options.selectionvalues.Split(',');
 			}
-
-			Console.WriteLine("ServerURL:" + serverURL.ToString());
-			Console.WriteLine("appname:" + appname);
-
 			//TODO need to validate the params ideally
 
 			////connect to the server (using windows credentials
@@ -79,18 +82,22 @@ namespace CacheInitializer
 				remoteQlikSenseLocation.VirtualProxyPath = virtualProxy;
 			}
 			bool isHTTPs = false;
-			if (serverURL.Scheme == Uri.UriSchemeHttps) isHTTPs = true;
+			if (serverURL.Scheme == Uri.UriSchemeHttps)
+			{
+				isHTTPs = true;
+			}
+			Console.WriteLine("https:" + isHTTPs.ToString());
 			remoteQlikSenseLocation.AsNtlmUserViaProxy(isHTTPs, null, false);
 
 
 			////Start to cache the apps
+			IAppIdentifier appIdentifier = null;
 
 			if (appid != null)
 			{
 				//Open up and cache one app, based on app ID
-				IAppIdentifier appidentifier = remoteQlikSenseLocation.AppWithId(appid);
-
-				LoadCache(remoteQlikSenseLocation, appidentifier, openSheets, mySelection);
+				appIdentifier = remoteQlikSenseLocation.AppWithId(appid);
+				LoadCache(remoteQlikSenseLocation, appIdentifier, openSheets, mySelection);
 
 			}
 			else
@@ -98,9 +105,8 @@ namespace CacheInitializer
 				if (appname != null)
 				{
 					//Open up and cache one app
-					IAppIdentifier appidentifier = remoteQlikSenseLocation.AppWithNameOrDefault(appname);
-
-					LoadCache(remoteQlikSenseLocation, appidentifier, openSheets, mySelection);
+					appIdentifier = remoteQlikSenseLocation.AppWithNameOrDefault(appname);
+					LoadCache(remoteQlikSenseLocation, appIdentifier, openSheets, mySelection);
 				}
 				else
 				{
@@ -113,8 +119,8 @@ namespace CacheInitializer
 			////Wrap it up
 			var dt = DateTime.Now - d;
 			Print("Cache initialization complete. Total time: {0}", dt.ToString());
-
-
+			remoteQlikSenseLocation.Dispose();
+			return;
 		}
 
 		static void LoadCache(ILocation location, IAppIdentifier id, bool opensheets, QlikSelection Selections)
@@ -154,7 +160,7 @@ namespace CacheInitializer
 			}
 
 			Print("{0}: App cache completed", id.AppName);
-
+			app.Dispose();
 		}
 
 		static void cacheObjects(IApp app, ILocation location, IAppIdentifier id)
