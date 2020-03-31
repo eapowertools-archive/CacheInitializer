@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 using Qlik.Engine;
 using Qlik.Engine.Communication;
@@ -55,69 +56,80 @@ namespace CacheInitializer
 			QlikSelection mySelection = null;
 
 
-
-			serverURL = new Uri(options.server);
-			appname = options.appname;
-			appid = options.appid;
-			virtualProxy = !string.IsNullOrEmpty(options.virtualProxy) ? options.virtualProxy : "";
-			openSheets = options.fetchobjects;
-			if (options.selectionfield != null)
+			try
 			{
-				mySelection = new QlikSelection();
-				mySelection.fieldname = options.selectionfield;
-				mySelection.fieldvalues = options.selectionvalues.Split(',');
-			}
-			//TODO need to validate the params ideally
-
-			////connect to the server (using windows credentials
-			QlikConnection.Timeout = Int32.MaxValue;
-			var d = DateTime.Now;
-			ILocation remoteQlikSenseLocation = Qlik.Engine.Location.FromUri(serverURL);
-
-			if (virtualProxy.Length > 0)
-			{
-				remoteQlikSenseLocation.VirtualProxyPath = virtualProxy;
-			}
-			bool isHTTPs = false;
-			if (serverURL.Scheme == Uri.UriSchemeHttps)
-			{
-				isHTTPs = true;
-			}
-			Console.WriteLine("https:" + isHTTPs.ToString());
-			remoteQlikSenseLocation.AsNtlmUserViaProxy(isHTTPs, null, false);
-
-
-			////Start to cache the apps
-			IAppIdentifier appIdentifier = null;
-
-			if (appid != null)
-			{
-				//Open up and cache one app, based on app ID
-				appIdentifier = remoteQlikSenseLocation.AppWithId(appid);
-				LoadCache(remoteQlikSenseLocation, appIdentifier, openSheets, mySelection);
-
-			}
-			else
-			{
-				if (appname != null)
+				serverURL = new Uri(options.server);
+				appname = options.appname;
+				appid = options.appid;
+				virtualProxy = !string.IsNullOrEmpty(options.virtualProxy) ? options.virtualProxy : "";
+				openSheets = options.fetchobjects;
+				if (options.selectionfield != null)
 				{
-					//Open up and cache one app
-					appIdentifier = remoteQlikSenseLocation.AppWithNameOrDefault(appname);
+					mySelection = new QlikSelection();
+					mySelection.fieldname = options.selectionfield;
+					mySelection.fieldvalues = options.selectionvalues.Split(',');
+				}
+				//TODO need to validate the params ideally
+
+				////connect to the server (using windows credentials
+				QlikConnection.Timeout = Int32.MaxValue;
+				var d = DateTime.Now;
+
+				ILocation remoteQlikSenseLocation = Qlik.Engine.Location.FromUri(serverURL);
+
+				if (virtualProxy.Length > 0)
+				{
+					remoteQlikSenseLocation.VirtualProxyPath = virtualProxy;
+				}
+				bool isHTTPs = false;
+				if (serverURL.Scheme == Uri.UriSchemeHttps)
+				{
+					isHTTPs = true;
+				}
+				remoteQlikSenseLocation.AsNtlmUserViaProxy(isHTTPs, null, false);
+
+				////Start to cache the apps
+				IAppIdentifier appIdentifier = null;
+
+				if (appid != null)
+				{
+					//Open up and cache one app, based on app ID
+					appIdentifier = remoteQlikSenseLocation.AppWithId(appid);
 					LoadCache(remoteQlikSenseLocation, appIdentifier, openSheets, mySelection);
+
 				}
 				else
 				{
-					//Get all apps, open them up and cache them
-					remoteQlikSenseLocation.GetAppIdentifiers().ToList().ForEach(id => LoadCache(remoteQlikSenseLocation, id, openSheets, null));
+					if (appname != null)
+					{
+						//Open up and cache one app
+						appIdentifier = remoteQlikSenseLocation.AppWithNameOrDefault(appname);
+						LoadCache(remoteQlikSenseLocation, appIdentifier, openSheets, mySelection);
+					}
+					else
+					{
+						//Get all apps, open them up and cache them
+						remoteQlikSenseLocation.GetAppIdentifiers().ToList().ForEach(id => LoadCache(remoteQlikSenseLocation, id, openSheets, null));
+					}
 				}
+
+
+				////Wrap it up
+				var dt = DateTime.Now - d;
+				Print("Cache initialization complete. Total time: {0}", dt.ToString());
+				remoteQlikSenseLocation.Dispose();
+				return;
 			}
+			catch (UriFormatException)
+			{
+				Print("Invalid server paramater format. Format must be http[s]://host.domain.tld.");
+			}
+			catch (WebSocketException webEx)
+			{
+				Print("Unable to connect to establish WebSocket connection with: " + options.server);
+				Print("Error: " + webEx.Message);
 
-
-			////Wrap it up
-			var dt = DateTime.Now - d;
-			Print("Cache initialization complete. Total time: {0}", dt.ToString());
-			remoteQlikSenseLocation.Dispose();
-			return;
+			}
 		}
 
 		static void LoadCache(ILocation location, IAppIdentifier id, bool opensheets, QlikSelection Selections)
