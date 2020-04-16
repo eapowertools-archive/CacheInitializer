@@ -274,6 +274,10 @@ namespace CacheInitializer
 			{
 				Console.WriteLine("{0} - {1}", DateTime.Now.ToString("hh:mm:ss"), txt);
 			}
+			else if (level == LogLevel.Debug && !DEBUG_MODE)
+			{
+				return;
+			}
 			else if (level == LogLevel.Debug && DEBUG_MODE)
 			{
 				Console.WriteLine("DEBUG\t{0} - {1}", DateTime.Now.ToString("hh:mm:ss"), txt);
