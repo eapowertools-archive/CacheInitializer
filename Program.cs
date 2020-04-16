@@ -24,8 +24,21 @@ using CommandLine;
 
 namespace CacheInitializer
 {
+	internal enum LogLevel
+	{
+		Info,
+		Debug
+	}
+
+	internal class QlikSelection
+	{
+		public string fieldname { get; set; }
+		public string[] fieldvalues { get; set; }
+	}
+
 	class Program
 	{
+		private static bool DEBUG_MODE = false;
 
 		static void Main(string[] args)
 		{
@@ -55,28 +68,40 @@ namespace CacheInitializer
 			string virtualProxy;
 			QlikSelection mySelection = null;
 
+			ILocation remoteQlikSenseLocation = null;
 
 			try
 			{
-				serverURL = new Uri(options.server);
-				appname = options.appname;
-				appid = options.appid;
-				virtualProxy = !string.IsNullOrEmpty(options.virtualProxy) ? options.virtualProxy : "";
-				openSheets = options.fetchobjects;
-				if (options.selectionfield != null)
+				if (options.Debug)
+				{
+					DEBUG_MODE = true;
+					Print(LogLevel.Debug, "Debug logging enabled.");
+
+				}
+				Print(LogLevel.Debug, "setting parameter values in main");
+				serverURL = new Uri(options.Server);
+				appname = options.AppName;
+				appid = options.AppID;
+				virtualProxy = !string.IsNullOrEmpty(options.VirtualProxy) ? options.VirtualProxy : "";
+				openSheets = options.FetchObjects;
+				if (options.SelectionField != null)
 				{
 					mySelection = new QlikSelection();
-					mySelection.fieldname = options.selectionfield;
-					mySelection.fieldvalues = options.selectionvalues.Split(',');
+					mySelection.fieldname = options.SelectionField;
+					mySelection.fieldvalues = options.SelectionValues.Split(',');
 				}
 				//TODO need to validate the params ideally
+
+				Print(LogLevel.Debug, "setting remoteQlikSenseLocation"); ;
 
 				////connect to the server (using windows credentials
 				QlikConnection.Timeout = Int32.MaxValue;
 				var d = DateTime.Now;
 
-				ILocation remoteQlikSenseLocation = Qlik.Engine.Location.FromUri(serverURL);
+				remoteQlikSenseLocation = Qlik.Engine.Location.FromUri(serverURL);
 
+
+				Print(LogLevel.Debug, "validating http(s) and virtual proxy"); ;
 				if (virtualProxy.Length > 0)
 				{
 					remoteQlikSenseLocation.VirtualProxyPath = virtualProxy;
@@ -88,6 +113,7 @@ namespace CacheInitializer
 				}
 				remoteQlikSenseLocation.AsNtlmUserViaProxy(isHTTPs, null, false);
 
+				Print(LogLevel.Debug, "starting to cache applications");
 				////Start to cache the apps
 				IAppIdentifier appIdentifier = null;
 
@@ -95,7 +121,9 @@ namespace CacheInitializer
 				{
 					//Open up and cache one app, based on app ID
 					appIdentifier = remoteQlikSenseLocation.AppWithId(appid);
+					Print(LogLevel.Debug, "got app identifier by ID");
 					LoadCache(remoteQlikSenseLocation, appIdentifier, openSheets, mySelection);
+					Print(LogLevel.Debug, "finished caching by ID");
 
 				}
 				else
@@ -104,87 +132,134 @@ namespace CacheInitializer
 					{
 						//Open up and cache one app
 						appIdentifier = remoteQlikSenseLocation.AppWithNameOrDefault(appname);
+						Print(LogLevel.Debug, "got app identifier by name");
 						LoadCache(remoteQlikSenseLocation, appIdentifier, openSheets, mySelection);
+						Print(LogLevel.Debug, "finished caching by name");
 					}
 					else
 					{
 						//Get all apps, open them up and cache them
 						remoteQlikSenseLocation.GetAppIdentifiers().ToList().ForEach(id => LoadCache(remoteQlikSenseLocation, id, openSheets, null));
+						Print(LogLevel.Debug, "finished caching all applications");
 					}
 				}
 
 
 				////Wrap it up
 				var dt = DateTime.Now - d;
-				Print("Cache initialization complete. Total time: {0}", dt.ToString());
+				Print(LogLevel.Info, "Cache initialization complete. Total time: {0}", dt.ToString());
 				remoteQlikSenseLocation.Dispose();
+				Print(LogLevel.Debug, "done");
+
 				return;
 			}
 			catch (UriFormatException)
 			{
-				Print("Invalid server paramater format. Format must be http[s]://host.domain.tld.");
+				Print(LogLevel.Info, "Invalid server paramater format. Format must be http[s]://host.domain.tld.");
+				return;
 			}
 			catch (WebSocketException webEx)
 			{
-				Print("Unable to connect to establish WebSocket connection with: " + options.server);
-				Print("Error: " + webEx.Message);
+				if (remoteQlikSenseLocation != null)
+				{
+					Print(LogLevel.Info, "Disposing remoteQlikSenseLocation");
+					remoteQlikSenseLocation.Dispose();
+				}
 
+				Print(LogLevel.Info, "Unable to connect to establish WebSocket connection with: " + options.Server);
+				Print(LogLevel.Info, "Error: " + webEx.Message);
+
+				return;
+			}
+			catch (TimeoutException timeoutEx)
+			{
+				Print(LogLevel.Info, "Timeout Exception - Unable to connect to: " + options.Server);
+				Print(LogLevel.Info, "Error: " + timeoutEx.Message);
+
+				return;
+			}
+			catch (Exception ex)
+			{
+				if (ex.Message.Trim() == "Websocket closed unexpectedly (EndpointUnavailable):")
+				{
+					Print(LogLevel.Info, "Error: licenses exhausted.");
+					return;
+				}
+				else
+				{
+					Print(LogLevel.Info, "Unexpected error.");
+					Print(LogLevel.Info, "Message: " + ex.Message);
+
+					return;
+				}
 			}
 		}
 
 		static void LoadCache(ILocation location, IAppIdentifier id, bool opensheets, QlikSelection Selections)
 		{
-			//open up the app
-			Print("{0}: Opening app", id.AppName);
-			IApp app = location.App(id);
-			Print("{0}: App open", id.AppName);
-
-			//see if we are going to open the sheets too
-			if (opensheets)
+			IApp app = null;
+			try
 			{
-				//see of we are going to make some selections too
-				if (Selections != null)
+				//open up the app
+				Print(LogLevel.Info, "{0}: Opening app", id.AppName);
+				app = location.App(id);
+				Print(LogLevel.Info, "{0}: App open", id.AppName);
+
+				//see if we are going to open the sheets too
+				if (opensheets)
 				{
-					for (int i = 0; i < Selections.fieldvalues.Length; i++)
+					//see of we are going to make some selections too
+					if (Selections != null)
 					{
-						//clear any existing selections
-						Print("{0}: Clearing Selections", id.AppName);
+						for (int i = 0; i < Selections.fieldvalues.Length; i++)
+						{
+							//clear any existing selections
+							Print(LogLevel.Info, "{0}: Clearing Selections", id.AppName);
+							app.ClearAll(true);
+							//apply the new selections
+							Print(LogLevel.Info, "{0}: Applying Selection: {1} = {2}", id.AppName, Selections.fieldname, Selections.fieldvalues[i]);
+							app.GetField(Selections.fieldname).Select(Selections.fieldvalues[i]);
+							//cache the results
+							cacheObjects(app, location, id);
+						}
+
+					}
+					else
+					{
+						//clear any selections
+						Print(LogLevel.Info, "{0}: Clearing Selections", id.AppName);
 						app.ClearAll(true);
-						//apply the new selections
-						Print("{0}: Applying Selection: {1} = {2}", id.AppName, Selections.fieldname, Selections.fieldvalues[i]);
-						app.GetField(Selections.fieldname).Select(Selections.fieldvalues[i]);
 						//cache the results
 						cacheObjects(app, location, id);
 					}
+				}
 
-				}
-				else
-				{
-					//clear any selections
-					Print("{0}: Clearing Selections", id.AppName);
-					app.ClearAll(true);
-					//cache the results
-					cacheObjects(app, location, id);
-				}
+				Print(LogLevel.Info, "{0}: App cache completed", id.AppName);
+				app.Dispose();
 			}
-
-			Print("{0}: App cache completed", id.AppName);
-			app.Dispose();
+			catch (Exception ex)
+			{
+				if (app != null)
+				{
+					app.Dispose();
+				}
+				throw ex;
+			}
 		}
 
 		static void cacheObjects(IApp app, ILocation location, IAppIdentifier id)
 		{
 			//get a list of the sheets in the app
-			Print("{0}: Getting sheets", id.AppName);
+			Print(LogLevel.Info, "{0}: Getting sheets", id.AppName);
 			var sheets = app.GetSheets().ToArray();
 			//get a list of the objects in the app
-			Print("{0}: Number of sheets - {1}, getting children", id.AppName, sheets.Count());
+			Print(LogLevel.Info, "{0}: Number of sheets - {1}, getting children", id.AppName, sheets.Count());
 			IGenericObject[] allObjects = sheets.Concat(sheets.SelectMany(sheet => GetAllChildren(app, sheet))).ToArray();
 			//draw the layout of all objects so the server calculates the data for them
-			Print("{0}: Number of objects - {1}, caching all objects", id.AppName, allObjects.Count());
+			Print(LogLevel.Info, "{0}: Number of objects - {1}, caching all objects", id.AppName, allObjects.Count());
 			var allLayoutTasks = allObjects.Select(o => o.GetLayoutAsync()).ToArray();
 			Task.WaitAll(allLayoutTasks);
-			Print("{0}: Objects cached", id.AppName);
+			Print(LogLevel.Info, "{0}: Objects cached", id.AppName);
 		}
 
 		private static IEnumerable<IGenericObject> GetAllChildren(IApp app, IGenericObject obj)
@@ -193,23 +268,25 @@ namespace CacheInitializer
 			return children.Concat(children.SelectMany(child => GetAllChildren(app, child)));
 		}
 
-		private static void Print(string txt)
+		private static void Print(LogLevel level, string txt)
 		{
-			Console.WriteLine("{0} - {1}", DateTime.Now.ToString("hh:mm:ss"), txt);
+			if (level == LogLevel.Info)
+			{
+				Console.WriteLine("{0} - {1}", DateTime.Now.ToString("hh:mm:ss"), txt);
+			}
+			else if (level == LogLevel.Debug && DEBUG_MODE)
+			{
+				Console.WriteLine("DEBUG\t{0} - {1}", DateTime.Now.ToString("hh:mm:ss"), txt);
+			}
+			else
+			{
+				throw new ArgumentException("Invalid LogLevel specified.");
+			}
 		}
 
-		private static void Print(string txt, params object[] os)
+		private static void Print(LogLevel level, string txt, params object[] os)
 		{
-			Print(String.Format(txt, os));
+			Print(level, String.Format(txt, os));
 		}
-
-
 	}
-
-	class QlikSelection
-	{
-		public string fieldname { get; set; }
-		public string[] fieldvalues { get; set; }
-	}
-
 }
