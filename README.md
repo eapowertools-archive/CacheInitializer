@@ -21,4 +21,4 @@ cacheinitiazer.exe -s https://server.domain.com [-a appname] [-i appid] [-o] [-f
 ```
 
 ##### Notes
-Also for those interested in similar capabilties but running in node.js check out Goran Sanders project (and many other goodies) here: https://github.com/mountaindude/butler-cw
+Also for those interested in similar capabilties but running in node.js check out Goran Sanders project (and many other goodies) here: https://github.com/ptarmiganlabs/butler-cw
